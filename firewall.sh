@@ -17,7 +17,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-if ! command -v iptables &> /dev/null
+if ! command -v iptables &> /dev/null; then
   echo "ERROR: iptables is not installed."
   exit 1
 fi
@@ -26,12 +26,12 @@ fi
 os_name=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
 
 # Check if the OS is Ubuntu (1) or CentOS (0)
-if [[ "$os_name" == "ubuntu" ]]; then
+if [[ "$os_name" == "ubuntu" ]] || [[ "$os_name" == "\"ubuntu\"" ]]; then
     os=1
-elif [[ "$os_name" == "centos"]]; then
+elif [[ "$os_name" == "\"centos\"" ]] || [[ "$os_name" == "centos" ]]; then
     os=0
 else
-    echo "ERROR: Unknown OS, THIS SCRIPT IS ONLY COMPATABLE WITH UBUNTU AND CENTOS"
+    echo "ERROR: Unknown OS, THIS SCRIPT IS ONLY COMPATIBLE WITH UBUNTU AND CENTOS"
     exit 1
 fi
 
@@ -41,11 +41,11 @@ echo "OS of $os_name detected, running under that assumption"
 case $1 in
   --strict)
     # Option 1: Block all traffic
+    iptables -F
+    iptables -X
     iptables -P INPUT DROP
     iptables -P OUTPUT DROP
     iptables -P FORWARD DROP
-    iptables -F
-    iptables -X
     echo "All traffic blocked and rules flushed"
     ;;
 
